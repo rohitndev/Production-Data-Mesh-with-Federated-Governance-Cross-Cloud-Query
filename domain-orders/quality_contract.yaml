@@ -1,0 +1,10 @@
+# Quality Contract (dbt-style + Great Expectations-style) — Orders Domain
+data_product: orders
+sla:
+  freshness_hours: 24          # data must be refreshed at least daily
+  min_rows: 5                  # completeness
+  not_null_columns: [order_id, customer_id, order_status]
+  unique_columns: [order_id]
+  allowed_values:
+    order_status: [delivered, shipped, canceled, processing]
+alert_channel: "#data-mesh-alerts (simulated)"

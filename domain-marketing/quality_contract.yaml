@@ -1,0 +1,10 @@
+# Quality Contract (dbt-style + Great Expectations-style) — Marketing Domain
+data_product: marketing
+sla:
+  freshness_hours: 24
+  min_rows: 5
+  not_null_columns: [event_id, customer_id, channel]
+  unique_columns: [event_id]
+  allowed_values:
+    channel: [email, paid_search, social, organic]
+alert_channel: "#data-mesh-alerts (simulated)"

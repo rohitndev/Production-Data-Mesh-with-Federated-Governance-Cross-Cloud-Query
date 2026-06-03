@@ -1,0 +1,36 @@
+# Data Product Contract — Orders Domain
+# Owner: Orders Team  |  Cloud: AWS S3 (simulated by local SQLite)
+data_product: orders
+domain: Orders
+cloud: AWS
+storage: "s3://de03-orders/olist/  (simulated -> warehouse/orders.db)"
+owner: orders-team@company.com
+description: "Brazilian E-Commerce (Olist) order data product."
+version: "1.0.0"
+
+table: orders
+columns:
+  - name: order_id
+    type: TEXT
+    pii: false
+    description: "Unique order identifier (primary key)."
+  - name: customer_id
+    type: TEXT
+    pii: true            # links to a person -> PII
+    description: "Customer identifier."
+  - name: order_status
+    type: TEXT
+    pii: false
+    description: "delivered / shipped / canceled / processing."
+  - name: order_value
+    type: REAL
+    pii: false
+    description: "Total order amount in BRL."
+  - name: order_date
+    type: TEXT
+    pii: false
+    description: "Order purchase timestamp (ISO date)."
+  - name: product_id
+    type: TEXT
+    pii: false
+    description: "Foreign key to inventory.product_id."

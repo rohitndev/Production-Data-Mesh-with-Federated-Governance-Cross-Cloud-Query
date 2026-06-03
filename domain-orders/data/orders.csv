@@ -1,0 +1,11 @@
+order_id,customer_id,order_status,order_value,order_date,product_id
+O-1001,C-01,delivered,259.9,2026-06-01,P-100
+O-1002,C-02,delivered,89.0,2026-06-01,P-101
+O-1003,C-03,shipped,410.5,2026-06-02,P-102
+O-1004,C-01,delivered,35.25,2026-06-02,P-103
+O-1005,C-04,canceled,120.0,2026-06-02,P-100
+O-1006,C-05,processing,540.0,2026-06-03,P-104
+O-1007,C-02,delivered,76.4,2026-06-03,P-101
+O-1008,C-06,delivered,199.99,2026-06-03,P-105
+O-1009,C-03,shipped,60.0,2026-06-03,P-102
+O-1010,C-07,delivered,310.1,2026-06-04,P-104

@@ -1,0 +1,9 @@
+# Quality Contract (dbt-style + Great Expectations-style) — Inventory Domain
+data_product: inventory
+sla:
+  freshness_hours: 24
+  min_rows: 5
+  not_null_columns: [product_id, product_name, stock_qty]
+  unique_columns: [product_id]
+  non_negative_columns: [stock_qty, reorder_level]
+alert_channel: "#data-mesh-alerts (simulated)"

@@ -1,0 +1,36 @@
+# Data Product Contract — Marketing Domain
+# Owner: Marketing Team  |  Cloud: GCP BigQuery (simulated by local SQLite)
+data_product: marketing
+domain: Marketing
+cloud: GCP
+storage: "bq://de03-marketing.ga4_events  (simulated -> warehouse/marketing.db)"
+owner: marketing-team@company.com
+description: "Google Analytics 4 (GA4) marketing events data product."
+version: "1.0.0"
+
+table: marketing
+columns:
+  - name: event_id
+    type: TEXT
+    pii: false
+    description: "Unique GA4 event identifier (primary key)."
+  - name: customer_id
+    type: TEXT
+    pii: true            # links to a person -> PII
+    description: "Customer identifier (joins to orders.customer_id)."
+  - name: channel
+    type: TEXT
+    pii: false
+    description: "Acquisition channel: email / paid_search / social / organic."
+  - name: campaign
+    type: TEXT
+    pii: false
+    description: "Marketing campaign name."
+  - name: spend
+    type: REAL
+    pii: false
+    description: "Attributed marketing spend in BRL."
+  - name: event_date
+    type: TEXT
+    pii: false
+    description: "Event timestamp (ISO date)."

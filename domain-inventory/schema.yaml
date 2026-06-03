@@ -1,0 +1,32 @@
+# Data Product Contract — Inventory Domain
+# Owner: Inventory Team  |  Cloud: Azure Data Lake Gen2 (simulated by local SQLite)
+data_product: inventory
+domain: Inventory
+cloud: Azure
+storage: "abfss://de03-inventory/instacart/  (simulated -> warehouse/inventory.db)"
+owner: inventory-team@company.com
+description: "Instacart market-basket inventory data product."
+version: "1.0.0"
+
+table: inventory
+columns:
+  - name: product_id
+    type: TEXT
+    pii: false
+    description: "Unique product identifier (primary key)."
+  - name: product_name
+    type: TEXT
+    pii: false
+    description: "Human readable product name."
+  - name: department
+    type: TEXT
+    pii: false
+    description: "Product department / category."
+  - name: stock_qty
+    type: INTEGER
+    pii: false
+    description: "Units currently in stock."
+  - name: reorder_level
+    type: INTEGER
+    pii: false
+    description: "Stock level that triggers a reorder."

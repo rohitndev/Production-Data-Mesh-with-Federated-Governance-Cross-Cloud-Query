@@ -1,0 +1,7 @@
+product_id,product_name,department,stock_qty,reorder_level
+P-100,Organic Bananas,produce,120,30
+P-101,Whole Milk 1L,dairy,8,20
+P-102,Sourdough Bread,bakery,45,15
+P-103,Sparkling Water 6pk,beverages,200,50
+P-104,Free Range Eggs,dairy,12,25
+P-105,Dark Chocolate Bar,snacks,300,40

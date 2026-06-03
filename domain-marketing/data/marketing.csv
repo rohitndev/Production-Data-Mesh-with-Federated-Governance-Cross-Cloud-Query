@@ -1,0 +1,9 @@
+event_id,customer_id,channel,campaign,spend,event_date
+E-9001,C-01,email,winter_sale,4.5,2026-05-31
+E-9002,C-02,paid_search,brand_terms,12.0,2026-05-31
+E-9003,C-03,social,influencer_q2,7.25,2026-06-01
+E-9004,C-04,organic,none,0.0,2026-06-01
+E-9005,C-05,paid_search,competitor_terms,18.4,2026-06-02
+E-9006,C-06,email,winter_sale,3.1,2026-06-02
+E-9007,C-07,social,influencer_q2,9.8,2026-06-03
+E-9008,C-01,paid_search,brand_terms,11.0,2026-06-03
