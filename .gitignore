@@ -3,3 +3,4 @@ __pycache__/
 warehouse/*.db
 .venv/
 .env
+SAMPLE_README.md

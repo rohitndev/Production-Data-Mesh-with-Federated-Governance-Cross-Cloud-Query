@@ -3,7 +3,7 @@
 data_product: marketing
 domain: Marketing
 cloud: GCP
-storage: "bq://de03-marketing.ga4_events  (simulated -> warehouse/marketing.db)"
+storage: "bq://marketing-domain.ga4_events  (simulated -> warehouse/marketing.db)"
 owner: marketing-team@company.com
 description: "Google Analytics 4 (GA4) marketing events data product."
 version: "1.0.0"

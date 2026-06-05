@@ -3,7 +3,7 @@
 data_product: orders
 domain: Orders
 cloud: AWS
-storage: "s3://de03-orders/olist/  (simulated -> warehouse/orders.db)"
+storage: "s3://orders-domain/olist/  (simulated -> warehouse/orders.db)"
 owner: orders-team@company.com
 description: "Brazilian E-Commerce (Olist) order data product."
 version: "1.0.0"

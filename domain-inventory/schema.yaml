@@ -3,7 +3,7 @@
 data_product: inventory
 domain: Inventory
 cloud: Azure
-storage: "abfss://de03-inventory/instacart/  (simulated -> warehouse/inventory.db)"
+storage: "abfss://inventory-domain/instacart/  (simulated -> warehouse/inventory.db)"
 owner: inventory-team@company.com
 description: "Instacart market-basket inventory data product."
 version: "1.0.0"

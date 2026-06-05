@@ -1,7 +1,7 @@
 """
 Trino-style cross-cloud query federation (simulated with SQLite ATTACH).
 
-Real DE-03 uses Trino connectors to query AWS S3, Azure ADLS and GCP BigQuery
+A real deployment uses Trino connectors to query AWS S3, Azure ADLS and GCP BigQuery
 in a single SQL statement WITHOUT moving data between clouds. We reproduce that
 behaviour locally: each domain lives in its own SQLite file, and we ATTACH all
 three into one in-memory connection so a single SELECT can JOIN across them.

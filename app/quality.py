@@ -4,7 +4,7 @@ Great Expectations-style data quality + SLA validation (simulated).
 Reads each domain's quality_contract.yaml and checks the loaded data against it:
 completeness (min rows), not-null, uniqueness, allowed values and non-negative
 columns. Any failure is the local equivalent of a data-contract breach that
-DE-03 would route to Slack.
+the real system would route to Slack.
 """
 import os
 import sqlite3

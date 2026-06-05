@@ -1,12 +1,24 @@
-# DE-03 · Production Data Mesh with Federated Governance & Cross-Cloud Query
+# Production Data Mesh — Federated Governance & Cross-Cloud Query Without ETL
 
-> A simple, fully-runnable backend prototype of a **Data Mesh**: three domain-owned
-> data products (Orders, Inventory, Marketing) living in three separate stores,
-> queried together through a single federated SQL engine — **with no data movement**.
+*A Data Engineering Project*
 
----
+```text
+💡 Click "⋮≡" at top right to show the table of contents.
+```
 
-## Project Overview
+## **Project Overview**
+
+![project-overview](./screenshots/project-overview.jpeg)
+
+This is a **working backend prototype of a Data Mesh**: three domain-owned data
+products (Orders, Inventory, Marketing) living in three separate cloud stores,
+queried together through a single federated SQL engine — **with no data movement**.
+
+**The project was created to practice and demonstrate the full architecture of an
+enterprise Data Mesh** covering domain data ownership, data contracts, cross-cloud
+federation, a self-service data catalog, automated PII governance, quality/SLA
+enforcement, mesh-health monitoring, and an identity layer — all exposed through a
+single **FastAPI** control plane that runs entirely on a laptop.
 
 Large enterprises keep data in silos — Orders on AWS, Inventory on Azure, Marketing
 on GCP. Answering one cross-domain question normally means building brittle, slow ETL
@@ -15,66 +27,74 @@ its data as a product (with a schema contract, quality contract and an owner), a
 **federation layer** lets anyone query across all of them in one SQL statement without
 copying anything.
 
-This project is a college-level **working prototype** of that idea. It keeps the exact
-architecture of the enterprise design but runs entirely on your laptop with Python +
-SQLite — no cloud accounts required:
+![silos-vs-mesh](./screenshots/silos-vs-mesh.jpeg)
+
+This project keeps the exact architecture of the enterprise design but runs entirely on
+your laptop with Python + SQLite — no cloud accounts required:
 
 | Enterprise design | This prototype |
 |---|---|
 | AWS S3 / Azure ADLS / GCP BigQuery | 3 separate SQLite databases (`orders.db`, `inventory.db`, `marketing.db`) |
 | Trino cross-cloud federation | SQLite `ATTACH DATABASE` (real cross-store JOINs, zero data movement) |
-| DataHub catalog + PII governance | `catalog.py` (scans schema contracts, auto-tags PII) |
-| Backstage data product portal | `portal.py` (discover products, request access) |
-| dbt contracts + Great Expectations | `quality.py` (validates SLA / quality rules) |
-| Grafana SLA dashboard | `sla.py` (quality scores + mesh health) |
-| Keycloak IAM | `auth.py` (API-key identity check) |
+| DataHub catalog + PII governance | [`catalog.py`](./platform/datahub/catalog.py) (scans schema contracts, auto-tags PII) |
+| Backstage data product portal | [`portal.py`](./platform/backstage/portal.py) (discover products, request access) |
+| dbt contracts + Great Expectations | [`quality.py`](./app/quality.py) (validates SLA / quality rules) |
+| Grafana SLA dashboard | [`sla.py`](./monitoring/sla.py) (quality scores + mesh health) |
+| Keycloak IAM | [`auth.py`](./platform/keycloak/auth.py) (API-key identity check) |
 
-The whole thing is exposed as a **FastAPI** backend (no frontend needed) with interactive
-docs at `/docs`.
+## **Table of Contents**:
 
----
-
-## Table of Contents
-
-- [Project Overview](#project-overview)
-1. [**Prerequisites**](#1-prerequisites)
+1. [Prerequisites](#1-prerequisites)
 2. [**Steps to Run This Project**](#2-steps-to-run-this-project)
-   - [2.1 Install dependencies](#21-install-dependencies)
-   - [2.2 Build the warehouse (load the 3 data products)](#22-build-the-warehouse-load-the-3-data-products)
-   - [2.3 Start the backend API](#23-start-the-backend-api)
-   - [2.4 Try it out](#24-try-it-out)
+    - 2.1 [Install dependencies](#21-install-dependencies)
+    - 2.2 [Build the warehouse (load the 3 data products)](#22-build-the-warehouse-load-the-3-data-products)
+    - 2.3 [Start the backend API](#23-start-the-backend-api)
+    - 2.4 [Try it out](#24-try-it-out)
 3. [**Architecture**](#3-architecture)
-   - [3.1 Architecture Diagram](#31-architecture-diagram)
-   - [3.2 Data Flow](#32-data-flow)
-   - [3.3 Project Structure](#33-project-structure)
+    - 3.1 [Architecture Diagram](#31-architecture-diagram)
+    - 3.2 [Data Flow](#32-data-flow)
+    - 3.3 [Project Structure](#33-project-structure)
 4. [**The Data Mesh, Layer by Layer**](#4-the-data-mesh-layer-by-layer)
-   - [4.1 Domain Data Products (the 3 "clouds")](#41-domain-data-products-the-3-clouds)
-   - [4.2 Trino Federation (cross-cloud query)](#42-trino-federation-cross-cloud-query)
-   - [4.3 DataHub Catalog & Governance](#43-datahub-catalog--governance)
-   - [4.4 Backstage Data Product Portal](#44-backstage-data-product-portal)
-   - [4.5 Quality & SLA Contracts](#45-quality--sla-contracts)
-   - [4.6 Monitoring (Grafana-style)](#46-monitoring-grafana-style)
-   - [4.7 Identity (Keycloak-style)](#47-identity-keycloak-style)
+    - 4.1 [Domain Data Products (the 3 "clouds")](#41-domain-data-products-the-3-clouds)
+    - 4.2 [Trino Federation (cross-cloud query)](#42-trino-federation-cross-cloud-query)
+    - 4.3 [DataHub Catalog & Governance](#43-datahub-catalog--governance)
+    - 4.4 [Backstage Data Product Portal](#44-backstage-data-product-portal)
+    - 4.5 [Quality & SLA Contracts](#45-quality--sla-contracts)
+    - 4.6 [Monitoring (Grafana-style)](#46-monitoring-grafana-style)
+    - 4.7 [Identity (Keycloak-style)](#47-identity-keycloak-style)
 5. [**API Reference**](#5-api-reference)
 6. [**Kaggle Notebook**](#6-kaggle-notebook)
+7. [Conclusion](#7-conclusion)
+8. [Appendix](#8-appendix)
+    - 8.1 [Designs Gallery](#81-designs-gallery)
 
----
+Datasets *(simulated samples)*: Olist Orders · Instacart Inventory · GA4 Marketing
 
 ## 1. Prerequisites
 
-- **Python 3.10+** (tested on 3.12)
+- **Python** (`>=3.10`, tested on 3.12)
 - **pip** (comes with Python)
-- That's it — SQLite ships with Python, and no cloud accounts are needed.
+- That's it — SQLite ships with Python, and **no cloud accounts are needed**.
 
 Python packages (installed in the next step): `fastapi`, `uvicorn`, `pydantic`, `PyYAML`.
 
----
+*All commands below are run from the `data-mesh/` folder.*
 
 ## 2. Steps to Run This Project
 
-All commands are run from the `de03-data-mesh/` folder.
+Clone this repository to obtain all necessary files, then use it as the root working directory.
+
+```bash
+git clone <your-repo-url>
+cd data-mesh
+```
+
+The full run is three steps: install dependencies, build the three "cloud" stores, and
+start the control plane. Each step is shown below with the output you should expect.
 
 ### 2.1 Install dependencies
+
+All Python dependencies are pinned in [requirements.txt](./requirements.txt).
 
 ```bash
 pip install -r requirements.txt
@@ -82,11 +102,17 @@ pip install -r requirements.txt
 
 ### 2.2 Build the warehouse (load the 3 data products)
 
-This loads each domain into its **own** database file, simulating three separate clouds:
+The pipeline script [pipelines/load_data.py](./pipelines/load_data.py) loads each domain
+into its **own** database file, simulating three separate clouds — the data products
+never share a store, exactly like physically separate clouds:
 
 ```bash
 python pipelines/load_data.py
 ```
+
+You should see each domain land in its own "cloud" store:
+
+![terminal-load-data](./screenshots/terminal-load-data.jpeg)
 
 ```text
 [pipeline] Loaded 3 domain data products into separate cloud stores:
@@ -97,12 +123,17 @@ python pipelines/load_data.py
 
 ### 2.3 Start the backend API
 
+The single control plane is the FastAPI app in [app/main.py](./app/main.py), which wires
+together every platform module (catalog, federation, portal, quality, monitoring, auth).
+
 ```bash
 uvicorn app.main:app --reload
 ```
 
+![terminal-uvicorn](./screenshots/terminal-uvicorn.jpeg)
+
 ```text
-INFO:     Will watch for changes in these directories: ['/de03-data-mesh']
+INFO:     Will watch for changes in these directories: ['/data-mesh']
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
 INFO:     Started reloader process [12480] using StatReload
 INFO:     Started server process [9032]
@@ -115,7 +146,12 @@ Then open the interactive API docs in your browser:
 http://127.0.0.1:8000/docs
 ```
 
-A quick health check confirms the control plane is up:
+The whole mesh is exposed as an interactive Swagger UI — every layer (catalog, federation,
+portal, quality, monitoring) is a clickable, runnable endpoint:
+
+![swagger-ui](./screenshots/swagger-ui.jpeg)
+
+A quick health check confirms the control plane is up (handled by [`root()`](./app/main.py)):
 
 ```bash
 curl http://127.0.0.1:8000/
@@ -123,7 +159,7 @@ curl http://127.0.0.1:8000/
 
 ```json
 {
-  "service": "DE-03 Data Mesh",
+  "service": "Data Mesh",
   "status": "up",
   "domains": ["orders (AWS)", "inventory (Azure)", "marketing (GCP)"],
   "docs": "/docs"
@@ -132,13 +168,16 @@ curl http://127.0.0.1:8000/
 
 ### 2.4 Try it out
 
-Run a **single federated query that joins all three clouds** at once:
+Run a **single federated query that joins all three clouds** at once, routed through the
+Trino-style engine in [platform/trino/federation.py](./platform/trino/federation.py):
 
 ```bash
 curl -X POST http://127.0.0.1:8000/federation/query \
   -H "Content-Type: application/json" \
   -d '{"sql":"SELECT o.customer_id, COUNT(o.order_id) AS orders, m.channel FROM orders.orders o JOIN marketing.marketing m ON m.customer_id=o.customer_id GROUP BY o.customer_id"}'
 ```
+
+![terminal-federated-query](./screenshots/terminal-federated-query.jpeg)
 
 ```json
 {
@@ -152,48 +191,22 @@ curl -X POST http://127.0.0.1:8000/federation/query \
 }
 ```
 
----
+The Orders data lives in `orders.db` (AWS) and the Marketing data in `marketing.db` (GCP),
+yet they are JOINed in a single statement — **and neither dataset ever left its own store**.
 
 ## 3. Architecture
 
 ### 3.1 Architecture Diagram
 
-```text
- ┌─────────────────────────────────────────────────────────────────────┐
- │                        DE-03 DATA MESH                                │
- └─────────────────────────────────────────────────────────────────────┘
+Three independent domains publish data products into three separate stores. A federation
+layer attaches all three and answers cross-cloud SQL; catalog, portal and monitoring sit on
+top; a FastAPI control plane and an identity layer wrap everything.
 
-   ┌────────────┐        ┌────────────┐        ┌────────────┐
-   │  DOMAIN 1  │        │  DOMAIN 2  │        │  DOMAIN 3  │
-   │   Orders   │        │ Inventory  │        │ Marketing  │
-   │  AWS  S3   │        │ Azure ADLS │        │ GCP BigQry │
-   │ orders.db  │        │inventory.db│        │marketing.db│
-   └─────┬──────┘        └─────┬──────┘        └─────┬──────┘
-         │                     │                     │
-         └─────────────────────┼─────────────────────┘
-                               │   (no data movement)
-                       ┌───────▼────────┐
-                       │     TRINO      │   federation.py
-                       │  Cross-Cloud   │   (SQLite ATTACH)
-                       │   Federation   │
-                       └───────┬────────┘
-                               │
-        ┌──────────────────────┼──────────────────────┐
-        │                      │                       │
- ┌──────▼──────┐       ┌───────▼───────┐       ┌───────▼───────┐
- │   DataHub   │       │   Backstage   │       │    Grafana    │
- │  Catalog +  │       │ Data Product  │       │  SLA / Health │
- │ PII + Lineage│      │    Portal     │       │   Dashboard   │
- └─────────────┘       └───────────────┘       └───────────────┘
-        catalog.py          portal.py               sla.py
-                               │
-                       ┌───────▼────────┐
-                       │  FastAPI app   │  app/main.py  (single control plane)
-                       │   REST + /docs │  + Keycloak auth.py
-                       └────────────────┘
-```
+![architecture-diagram](./screenshots/architecture-diagram.jpeg)
 
 ### 3.2 Data Flow
+
+![data-flow](./screenshots/data-flow.jpeg)
 
 1. Each domain team publishes a **data product**: data + `schema.yaml` (contract) + `quality_contract.yaml` (SLA).
 2. The pipeline loads each product into its **own** store — Orders→AWS, Inventory→Azure, Marketing→GCP.
@@ -206,7 +219,7 @@ curl -X POST http://127.0.0.1:8000/federation/query \
 ### 3.3 Project Structure
 
 ```text
-de03-data-mesh/
+data-mesh/
 ├── domain-orders/         # Data product 1 — Orders (AWS)
 │   ├── data/orders.csv
 │   ├── schema.yaml            # data contract (columns, PII flags, owner)
@@ -235,16 +248,21 @@ de03-data-mesh/
 └── README.md
 ```
 
----
-
 ## 4. The Data Mesh, Layer by Layer
 
-A brief, point-by-point explanation of each section above:
+A brief, point-by-point explanation of each layer, with the live endpoint that exposes it.
 
 ### 4.1 Domain Data Products (the 3 "clouds")
-- Three independent domains, each **owning** its own data, schema and SLA.
+
+![domain-data-products](./screenshots/domain-data-products.jpeg)
+
+- Three independent domains, each **owning** its own data, schema and SLA — defined in
+  [domain-orders/schema.yaml](./domain-orders/schema.yaml),
+  [domain-inventory/schema.yaml](./domain-inventory/schema.yaml) and
+  [domain-marketing/schema.yaml](./domain-marketing/schema.yaml).
 - Stored in **separate** databases so they behave like physically separate clouds.
-- `GET /catalog` lists every product with its owner, cloud and description.
+- `GET /catalog` lists every product with its owner, cloud and description, served by
+  [`list_products()`](./platform/datahub/catalog.py).
 
 ```json
 [
@@ -255,8 +273,12 @@ A brief, point-by-point explanation of each section above:
 ```
 
 ### 4.2 Trino Federation (cross-cloud query)
+
+![trino-federation](./screenshots/trino-federation.jpeg)
+
 - A single SQL `SELECT` can JOIN `orders`, `inventory` and `marketing` together.
-- Implemented with SQLite `ATTACH DATABASE`, so **no data is copied** between stores.
+- Implemented with SQLite `ATTACH DATABASE` in [`run_query()`](./platform/trino/federation.py),
+  so **no data is copied** between stores.
 - Read-only by design — write/DDL statements are rejected.
 - `POST /federation/query` runs any SELECT; `GET /federation/samples` returns ready-made queries.
 
@@ -275,9 +297,12 @@ Revenue vs. marketing spend per channel, joining Orders (AWS) with Marketing (GC
 ```
 
 ### 4.3 DataHub Catalog & Governance
+
+![datahub-governance](./screenshots/datahub-governance.jpeg)
+
 - Auto-scans all three `schema.yaml` contracts into one control plane.
-- **Auto-discovers PII** columns for GDPR mapping (`GET /governance/pii`).
-- Publishes a lineage graph showing how the products link (`GET /lineage`).
+- **Auto-discovers PII** columns for GDPR mapping via [`pii_report()`](./platform/datahub/catalog.py) (`GET /governance/pii`).
+- Publishes a lineage graph showing how the products link via [`lineage()`](./platform/datahub/catalog.py) (`GET /lineage`).
 
 ```json
 {
@@ -305,8 +330,14 @@ The lineage graph shows how the three products link across clouds (`GET /lineage
 ```
 
 ### 4.4 Backstage Data Product Portal
-- A "storefront" where analysts discover products and one-click sample queries.
-- **Self-service access**: `POST /portal/access` returns an auto-approved ticket in seconds — the prototype version of the "6 weeks → 5 minutes" goal.
+
+![backstage-portal](./screenshots/backstage-portal.jpeg)
+
+- A "storefront" where analysts discover products and one-click sample queries, served by
+  [`storefront()`](./platform/backstage/portal.py).
+- **Self-service access**: `POST /portal/access` returns an auto-approved ticket in seconds via
+  [`request_access()`](./platform/backstage/portal.py) — the prototype version of the
+  "6 weeks → 5 minutes" goal.
 
 The storefront an analyst sees (`GET /portal`):
 
@@ -328,8 +359,12 @@ Requesting access returns an auto-approved ticket (`POST /portal/access`):
 ```
 
 ### 4.5 Quality & SLA Contracts
-- Each product is validated against its `quality_contract.yaml`: completeness, not-null,
-  uniqueness, allowed values, non-negative checks.
+
+![quality-sla](./screenshots/quality-sla.jpeg)
+
+- Each product is validated against its `quality_contract.yaml` by
+  [`validate()`](./app/quality.py): completeness, not-null, uniqueness, allowed values,
+  non-negative checks. See [domain-orders/quality_contract.yaml](./domain-orders/quality_contract.yaml).
 - A failing check is a **contract breach** (the trigger for a Slack alert in the real system).
 - `GET /quality` validates all products; `GET /quality/{product}` validates one.
 
@@ -354,7 +389,10 @@ A full validation report for the Orders product, with every expectation broken o
 ```
 
 ### 4.6 Monitoring (Grafana-style)
-- Rolls all quality results into a single **mesh health** view.
+
+![monitoring-health](./screenshots/monitoring-health.jpeg)
+
+- Rolls all quality results into a single **mesh health** view via [`dashboard()`](./monitoring/sla.py).
 - `GET /monitoring/sla` returns per-domain scores and overall status.
 
 ```json
@@ -371,12 +409,17 @@ A full validation report for the Orders product, with every expectation broken o
 ```
 
 ### 4.7 Identity (Keycloak-style)
-- Access requests require an `X-API-Key` header (demo keys: `analyst-key`, `admin-key`).
+
+![identity-keycloak](./screenshots/identity-keycloak.jpeg)
+
+- Access requests require an `X-API-Key` header (demo keys: `analyst-key`, `admin-key`),
+  checked by [`authenticate()`](./platform/keycloak/auth.py).
 - Stands in for cross-cloud SSO + Trino ACLs — the governance/IAM layer of the mesh.
 
----
-
 ## 5. API Reference
+
+Every endpoint is also runnable interactively from the Swagger UI at `/docs`. All routes are
+defined in [app/main.py](./app/main.py).
 
 | Method | Endpoint | Layer | Purpose |
 |---|---|---|---|
@@ -401,7 +444,7 @@ Example — the full schema contract returned by `GET /catalog/orders`:
   "data_product": "orders",
   "domain": "Orders",
   "cloud": "AWS",
-  "storage": "s3://de03-orders/olist/  (simulated -> warehouse/orders.db)",
+  "storage": "s3://orders-domain/olist/  (simulated -> warehouse/orders.db)",
   "owner": "orders-team@company.com",
   "version": "1.0.0",
   "table": "orders",
@@ -416,11 +459,11 @@ Example — the full schema contract returned by `GET /catalog/orders`:
 }
 ```
 
----
+For the domain-team workflow and a full Trino SQL guide, see [docs/runbook.md](./docs/runbook.md).
 
 ## 6. Kaggle Notebook
 
-A polished, presentation-ready notebook lives in `../kaggle/`:
+A polished, presentation-ready notebook lives in [kaggle/data_mesh_in_practice.ipynb](./kaggle/data_mesh_in_practice.ipynb):
 
 ```text
 kaggle/data_mesh_in_practice.ipynb
@@ -431,7 +474,41 @@ three domains (Olist Orders, Instacart Inventory, GA4 Marketing), builds the fed
 warehouse, runs cross-cloud queries, and visualizes the quality/SLA scorecard — a
 standalone, professional companion to this backend.
 
----
+## 7. Conclusion
+
+From this project, we learned how to:
+- **Design a Data Mesh architecture**, decomposing a monolith into domain-owned data products.
+- **Author data contracts** (`schema.yaml`) and **quality/SLA contracts** (`quality_contract.yaml`) per domain.
+- **Federate queries across clouds** with zero data movement, the Trino way.
+- **Build a self-service catalog and portal** with automated PII discovery and lineage.
+- **Enforce data quality** with Great Expectations-style validation tied to a mesh-health monitor.
+- **Add an identity/IAM layer** to gate self-service access requests.
+- **Expose the whole platform** through a single FastAPI control plane with interactive docs.
+
+***Thank you for your reading, happy learning.***
+
+## 8. Appendix
+
+This prototype intentionally simulates the enterprise stack (AWS/Azure/GCP, Trino, DataHub,
+Backstage, Great Expectations, Grafana, Keycloak) with a laptop-only Python + SQLite stack,
+so the architecture can be studied end-to-end without any cloud accounts.
+
+### 8.1 Designs Gallery
+
+- Data Mesh Project Overview
+![Data Mesh Project Overview](./screenshots/project-overview.jpeg)
+- Data Silos vs Data Mesh
+![Data Silos vs Data Mesh](./screenshots/silos-vs-mesh.jpeg)
+- System Architecture
+![System Architecture](./screenshots/architecture-diagram.jpeg)
+- End-to-end Data Flow
+![End-to-end Data Flow](./screenshots/data-flow.jpeg)
+- Cross-Cloud Federation
+![Cross-Cloud Federation](./screenshots/trino-federation.jpeg)
+- Catalog, PII & Lineage Governance
+![Catalog, PII and Lineage Governance](./screenshots/datahub-governance.jpeg)
+- Mesh Health Monitoring
+![Mesh Health Monitoring](./screenshots/monitoring-health.jpeg)
 
 ### Tech Stack
 `Python` · `FastAPI` · `SQLite (ATTACH federation)` · `Pydantic` · `PyYAML` · `Uvicorn`

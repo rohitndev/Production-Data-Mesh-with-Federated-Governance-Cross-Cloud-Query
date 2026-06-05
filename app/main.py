@@ -1,5 +1,5 @@
 """
-DE-03 Data Mesh — FastAPI backend (the single control plane).
+Data Mesh — FastAPI backend (the single control plane).
 
 Exposes every layer of the mesh over a REST API:
 
@@ -10,7 +10,7 @@ Exposes every layer of the mesh over a REST API:
     Monitoring (Grafana)            -> /monitoring/sla
     Identity (Keycloak)             -> X-API-Key header on /portal/access
 
-Run:  uvicorn app.main:app --reload   (from the de03-data-mesh/ folder)
+Run:  uvicorn app.main:app --reload   (from the data-mesh/ folder)
 Docs: http://127.0.0.1:8000/docs
 """
 import os
@@ -33,7 +33,7 @@ import sla            # noqa: E402  Grafana
 import auth           # noqa: E402  Keycloak
 
 app = FastAPI(
-    title="DE-03 · Production Data Mesh",
+    title="Production Data Mesh",
     description="Federated governance & cross-cloud query — local working prototype.",
     version="1.0.0",
 )
@@ -53,7 +53,7 @@ class AccessRequest(BaseModel):
 @app.get("/")
 def root():
     return {
-        "service": "DE-03 Data Mesh",
+        "service": "Data Mesh",
         "status": "up",
         "domains": ["orders (AWS)", "inventory (Azure)", "marketing (GCP)"],
         "docs": "/docs",
